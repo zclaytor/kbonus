@@ -1,1 +1,3 @@
-kbonus/__pycache__/*
+kbonus/__pycache__
+kbonus.egg-info
+tests/__pycache__
