@@ -17,6 +17,6 @@ def read_input_catalog(reader="fits", **kw):
             **kw)
     elif reader == "pandas":
         return pd.read_csv(
-            os.path.join(root_dir, "kbonus-bkg_source_catalog_v1.0.fits"),
+            os.path.join(root_dir, "kbonus-bkg_source_catalog_v1.0.csv"),
             **kw
         )
