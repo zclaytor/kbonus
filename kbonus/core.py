@@ -52,7 +52,7 @@ def resolve_target_path(target):
     file_path = os.path.join(
         root_dir, "lcs", first_four, id_str,
         f"hlsp_kbonus-bkg_kepler_kepler_{fname}_kepler_v1.0_lc.fits")
-    return file_path    
+    return file_path
 
 def _resolve_filename_int(target):
         if len(str(target)) == 19:
