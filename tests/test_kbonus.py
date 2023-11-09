@@ -21,8 +21,8 @@ def test_resolve_filename():
     gaia = 2143858906058582784
     kic = 11282447
     fname = 'kic-011282447'
-    f1 = kb.core.resolve_filename(gaia)
-    f2 = kb.core.resolve_filename(kic)
+    f1 = kb.core._get_filename(gaia)
+    f2 = kb.core._get_filename(kic)
     assert f1 == fname
     assert f2 == fname
     
