@@ -11,4 +11,8 @@ def test_root_exists():
 def test_reader():
     assert isinstance(kb.read_input_catalog(), Table)
     assert isinstance(kb.read_input_catalog(reader="pandas"), pd.DataFrame)
+    try:
+        kb.read_input_catalog('pasta')
+    except ValueError:
+        pass
     
