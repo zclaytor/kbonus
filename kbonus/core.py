@@ -5,7 +5,10 @@ from astropy.io import fits
 import lightkurve as lk
 
 
-root_dir = "/home/zach/Projects/kbonus-bkg/"
+#root_dir = "/home/zach/Projects/kbonus-bkg/"
+root_dir = "/blue/jtayar/zclaytor/kbonus-bkg"
+cat_dir = os.path.join(root_dir, "catalogs")
+lcs_dir = os.path.join(root_dir, "lcs")
 
 
 def read_input_catalog(reader="fits", **kw):
@@ -23,20 +26,20 @@ def read_input_catalog(reader="fits", **kw):
     """
     if reader == "fits":
         return Table.read(
-            os.path.join(root_dir, 
+            os.path.join(cat_dir, 
                 "hlsp_kbonus-bkg_kepler_kepler_source-catalog_kepler_v1.0_cat.fits"),
             format="fits",
             **kw)
     elif reader == "pandas":
         return pd.read_csv(
-            os.path.join(root_dir, "kbonus-bkg_source_catalog_v1.0.csv"),
+            os.path.join(cat_dir, "kbonus-bkg_source_catalog_v1.0.csv"),
             **kw
         )
     else:
         raise ValueError("`reader` must be either 'fits' or 'pandas'.")
     
 def read_designations():
-    return Table.read(os.path.join(root_dir, "designations.fits"))
+    return Table.read(os.path.join(cat_dir, "designations.fits"))
 
 def get_lightcurve(target):
     filepath = resolve_target_path(target)
@@ -50,7 +53,7 @@ def resolve_target_path(target):
         id_str = fname[9:]
     first_four = id_str[:4]
     file_path = os.path.join(
-        root_dir, "lcs", first_four, id_str,
+        lcs_dir, first_four, id_str,
         f"hlsp_kbonus-bkg_kepler_kepler_{fname}_kepler_v1.0_lc.fits")
     return file_path
 
