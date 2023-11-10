@@ -58,6 +58,42 @@ def get_lightcurve(target):
     filepath = get_target_path(target)
     return lk.read(filepath)
 
+def get_quarter_lightcurves(target):
+    """Retrieve and read quarter light curves of specified target.
+
+    Args:
+        target (int or str): Specified `target` must be formatted as a KIC ID 
+            or Gaia DR3 ID, but can be of type `str` or `int`. Acceptable
+            formats include:
+                `target=11282447` # KIC ID. KIC IDs are always <= 8 characters.
+                `target="11282447"` # Same as above.
+                `target="KIC 11282447"` # KIC ID formatted as str.
+                `target="Gaia DR3 2143858906058582784"` # Gaia DR3 ID
+                `target=2143858906058582784 # Gaia ID (always == 19 characters).
+
+    Returns:
+        lightcurves (lightkurve.LightCurveCollection):
+            The Kepler light curves of the desired target.
+    """    
+    filepath = get_target_path(target)
+
+    with fits.open(filepath) as f:
+        lcs = []
+        objname = f[0].header["OBJECT"]
+        for hdu in f:
+            extname = hdu.header["EXTNAME"]
+            if "LIGHTCURVE_Q" in extname:
+                q = extname[extname.find("Q")+1:]
+                lc = lk.KeplerLightCurve(hdu.data, 
+                    time=hdu.data["TIME"].astype(float),
+                    flux=hdu.data["FLUX"].astype(float),
+                    flux_err=hdu.data["FLUX_ERR"].astype(float),
+                    label=f"{objname} Quarter {q}")
+                lcs.append(lc)
+    if len(lcs) == 1:
+        return lcs[0]
+    return lk.LightCurveCollection(lcs)
+
 def get_target_path(target):
     """Given a target, return the path to the target's light curve file.
     See the docstring for `get_lightcurve` for acceptable target formats.

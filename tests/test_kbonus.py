@@ -32,3 +32,8 @@ def test_ETE():
     for f in [gaia, kic, f"Gaiadr3{gaia}  ", f"   kic{kic}"]:
         l = kb.get_lightcurve(f)
         assert isinstance(l, lk.LightCurve)
+
+def test_collection():
+    kic = 10407233
+    lcs = kb.get_quarter_lightcurves(kic)
+    assert isinstance(lcs, lk.LightCurveCollection)
