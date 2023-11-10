@@ -38,7 +38,7 @@ def read_input_catalog(reader="fits", **kw):
     else:
         raise ValueError("`reader` must be either 'fits' or 'pandas'.")
     
-def get_lightcurve(target):
+def get_lightcurve(target, **kw):
     """Retrieve and read light curve of specified target.
 
     Args:
@@ -50,15 +50,17 @@ def get_lightcurve(target):
                 `target="KIC 11282447"` # KIC ID formatted as str.
                 `target="Gaia DR3 2143858906058582784"` # Gaia DR3 ID
                 `target=2143858906058582784 # Gaia ID (always == 19 characters).
-
+        **kw:
+            Keyword arguments to be passed to `lightkurve.read`.
+        
     Returns:
         lightcurve (lightkurve.KeplerLightCurve):
             The Kepler light curve of the desired target.
     """
     filepath = get_target_path(target)
-    return lk.read(filepath)
+    return lk.read(filepath, **kw)
 
-def get_quarter_lightcurves(target):
+def get_quarter_lightcurves(target, **kw):
     """Retrieve and read quarter light curves of specified target.
 
     Args:
@@ -70,6 +72,8 @@ def get_quarter_lightcurves(target):
                 `target="KIC 11282447"` # KIC ID formatted as str.
                 `target="Gaia DR3 2143858906058582784"` # Gaia DR3 ID
                 `target=2143858906058582784 # Gaia ID (always == 19 characters).
+        **kw:
+            Keyword arguments to be passed to `lightkurve.KeplerLightCurve` constructor.
 
     Returns:
         lightcurves (lightkurve.LightCurveCollection):
@@ -88,7 +92,8 @@ def get_quarter_lightcurves(target):
                     time=hdu.data["TIME"].astype(float),
                     flux=hdu.data["FLUX"].astype(float),
                     flux_err=hdu.data["FLUX_ERR"].astype(float),
-                    label=f"{objname} Quarter {q}")
+                    label=f"{objname} Quarter {q}",
+                    **kw)
                 lcs.append(lc)
     if len(lcs) == 1:
         return lcs[0]
