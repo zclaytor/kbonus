@@ -12,13 +12,13 @@ Citation information pending.
 
 For now, I recommend installing either from GitHub, or directly from the repository on HiPerGator.
 
-GitHub:
+**GitHub** installation will clone the repository into wherever your packages are saved:
 
 ```bash
 pip install git+https://github.com/zclaytor/kbonus
 ```
 
-HiPerGator:
+**HiPerGator** installation is more space efficient, as it will source directly from the HPG repository. But note that you'll be trusting me to keep this version up to date and working.
 
 ```bash
 pip install -e /blue/jtayar/zclaytor/kbonus-bkg/kbonus
