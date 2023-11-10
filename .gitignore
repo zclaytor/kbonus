@@ -1,3 +1,4 @@
 kbonus/__pycache__
 kbonus.egg-info
 tests/__pycache__
+.coverage
