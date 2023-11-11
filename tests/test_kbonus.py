@@ -1,4 +1,6 @@
 import os
+import pytest
+
 import pandas as pd
 from astropy.table import Table
 import lightkurve as lk
@@ -6,12 +8,20 @@ import lightkurve as lk
 import kbonus as kb
 
 
+@pytest.fixture(scope="session")
+def source_catalog_fits():
+    return kb.read_source_catalog(reader="fits")
+
+@pytest.fixture(scope="session")
+def source_catalog_pandas():
+    return kb.read_source_catalog(reader="pandas")
+
 def test_root_exists():
     assert os.path.exists(kb.root_dir)
 
-def test_reader():
-    assert isinstance(kb.read_catalog(), Table)
-    assert isinstance(kb.read_catalog(reader="pandas"), pd.DataFrame)
+def test_reader(source_catalog_fits, source_catalog_pandas):
+    assert isinstance(source_catalog_fits, Table)
+    assert isinstance(source_catalog_pandas, pd.DataFrame)
     try:
         kb.read_catalog('pasta')
     except ValueError:
@@ -45,6 +55,17 @@ def test_resolve_filename():
     assert f1 == fname
     assert f2 == fname
     
+def test_lightcurves_from_row(source_catalog_fits, source_catalog_pandas):
+    kic = 10407233
+
+    cat = source_catalog_fits
+    lc = kb.get_lightcurve(cat[cat["kic"]==kic])
+    assert isinstance(lc, lk.KeplerLightCurve), "Get light curve from fits row fails."
+
+    cat = source_catalog_pandas
+    lc = kb.get_lightcurve(cat.query("kic == @kic"))
+    assert isinstance(lc, lk.KeplerLightCurve), "Get light curve from pandas row fails."
+
 def test_ETE():
     gaia = 2086636884980516352
     kic = 10407233

@@ -1,7 +1,7 @@
 import os
 from socket import gethostname
 import pandas as pd
-from astropy.table import Table
+from astropy.table import Table, Row
 from astropy.io import fits
 import lightkurve as lk
 
@@ -116,14 +116,19 @@ def get_lightcurve(target, **kw):
     """Retrieve and read light curve of specified target.
 
     Args:
-        target (int or str): Specified `target` must be formatted as a KIC ID 
-            or Gaia DR3 ID, but can be of type `str` or `int`. Acceptable
-            formats include:
+        target (int, str, astropy.table.[Row, Table], pandas.[Series, DataFrame]): 
+            The specified target. If supplying an ID, `target` must be
+            formatted as a KIC ID or Gaia DR3 ID, but can be of type `str` 
+            or `int`. Acceptable formats include:
                 `target=11282447` # KIC ID. KIC IDs are always <= 8 characters.
                 `target="11282447"` # Same as above.
                 `target="KIC 11282447"` # KIC ID formatted as str.
                 `target="Gaia DR3 2143858906058582784"` # Gaia DR3 ID
                 `target=2143858906058582784 # Gaia ID (always == 19 characters).
+            `target` may also be a row from one of the source catalogs, as type
+            astropy.table Row or Table (length=1), or pandas Series or 
+            DataFrame (length=1).
+            
         **kw:
             Keyword arguments to be passed to `lightkurve.read`.
         
@@ -138,14 +143,19 @@ def get_quarter_lightcurves(target, **kw):
     """Retrieve and read quarter light curves of specified target.
 
     Args:
-        target (int or str): Specified `target` must be formatted as a KIC ID 
-            or Gaia DR3 ID, but can be of type `str` or `int`. Acceptable
-            formats include:
+        target (int, str, astropy.table.[Row, Table], pandas.[Series, DataFrame]): 
+            The specified target. If supplying an ID, `target` must be
+            formatted as a KIC ID or Gaia DR3 ID, but can be of type `str` 
+            or `int`. Acceptable formats include:
                 `target=11282447` # KIC ID. KIC IDs are always <= 8 characters.
                 `target="11282447"` # Same as above.
                 `target="KIC 11282447"` # KIC ID formatted as str.
                 `target="Gaia DR3 2143858906058582784"` # Gaia DR3 ID
                 `target=2143858906058582784 # Gaia ID (always == 19 characters).
+            `target` may also be a row from one of the source catalogs, as type
+            astropy.table Row or Table (length=1), or pandas Series or 
+            DataFrame (length=1).
+    
         **kw:
             Keyword arguments to be passed to `lightkurve.KeplerLightCurve` constructor.
 
@@ -177,7 +187,7 @@ def get_target_path(target):
     """Given a target, return the path to the target's light curve file.
     See the docstring for `get_lightcurve` for acceptable target formats.
     """
-    fname = _get_filename(target)
+    fname = _get_filename(target).strip()
     if fname.startswith("kic"):
         id_str = fname[4:]
     elif fname.startswith("gaia"):
@@ -206,11 +216,21 @@ def _get_filename(target):
     """Helper function to retrieve the target's designation as listed
     in the name of its file.
     """
+    if isinstance(target, pd.Series) or isinstance(target, Row):
+        return target["fname"]
+    elif isinstance(target, pd.DataFrame) or isinstance(target, Table):
+        assert len(target) == 1, "Cannot return light curves for multiple rows."
+        if isinstance(target, Table):
+            target = target[0]
+        else:
+            target = target.iloc[0]
+        return target["fname"]
+    
     names = _read_designations()
 
     if isinstance(target, int):
         c, designation = _get_filename_int(target)
-    
+
     elif isinstance(target, str):
         target = target.lower().strip()
         if "gaia" in target:
