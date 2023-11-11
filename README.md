@@ -66,15 +66,6 @@ LightCurveCollection of 17 objects:
 
 But note that I'm not entirely sure the quarter light curves are properly corrected for systematics. Let me know if you find or think otherwise.
 
-### Reading light curves from catalog row
-
-You can also read light curves by supplying a catalog row. If you find a target you like, just pass the catalog row directly to the reader. For example:
-
-```python
-target = source_cat[source_cat["kic"] == 10407233] # `target` is an astropy Table
-lc = kb.get_lightcurve(target)
-```
-
 ### Reading the catalogs
 
 `kbonus` also has readers for the various KBONUS-BKG catalogs, so you can see for yourself what targets are available. The available catalogs are the Source ("source"), M Stars ("mstars"), and White Dwarf ("wd") catalogs.
@@ -98,3 +89,12 @@ Gaia DR3 2049129000009123328 295.1291598452008 38.47715676860133 ...  0.17665367
 ```
 
 The default settings return an `astropy.table`, but a `pandas` version of each catalog is available as well. Just set `reader='pandas'` to get a `pandas.DataFrame` version of the table.
+
+### Reading light curves from catalog row
+
+You can also read light curves by supplying a catalog row. If you find a target you like, just pass the catalog row directly to the reader. For example:
+
+```python
+target = cat[cat["kic"] == 10407233] # `target` is an astropy Table
+lc = kb.get_lightcurve(target)
+```
