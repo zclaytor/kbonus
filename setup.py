@@ -20,7 +20,7 @@ def get_version(rel_path):
 
 setuptools.setup(
     name="kbonus",
-    version=get_version("package/__init__.py"),
+    version=get_version("kbonus/__init__.py"),
     author="Zachary R. Claytor",
     author_email="zclaytor@ufl.edu",
     description="Utilities for reading kbonus-bkg light curves from HiPerGator",
