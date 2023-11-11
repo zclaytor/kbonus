@@ -10,12 +10,20 @@ def test_root_exists():
     assert os.path.exists(kb.root_dir)
 
 def test_reader():
-    assert isinstance(kb.read_input_catalog(), Table)
-    assert isinstance(kb.read_input_catalog(reader="pandas"), pd.DataFrame)
+    assert isinstance(kb.read_catalog(), Table)
+    assert isinstance(kb.read_catalog(reader="pandas"), pd.DataFrame)
     try:
-        kb.read_input_catalog('pasta')
+        kb.read_catalog('pasta')
     except ValueError:
         pass
+
+def test_catalogs():
+    assert len(kb.read_source_catalog()) == 606900, \
+        "Length of source catalog does not match expectation (606900)."
+    assert len(kb.read_mstars_catalog()) == 29800, \
+        "Length of mstars catalog does not match expectation (29800)."
+    assert len(kb.read_wd_catalog()) == 91, \
+        "Length of wd catalog does not match expectation (91)."
 
 def test_resolve_filename():
     gaia = 2143858906058582784
