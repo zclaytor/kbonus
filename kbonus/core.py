@@ -19,7 +19,7 @@ def read_catalog(cat="source", reader="fits", **kw):
 
     Args:
         cat (str): Which catalog to read.
-            Options are "source", "mstars", and "wd". Defaults to "source".
+            Options are "source", "kois-nns", "mstars", and "wd". Defaults to "source".
         reader (str): Which reader to use. 
             Options are 'fits' for `astropy.table.Table.read` 
             and 'pandas' for `pandas.DataFrame.read_csv`.
@@ -29,8 +29,14 @@ def read_catalog(cat="source", reader="fits", **kw):
     Returns:
         catalog: astropy Table or pandas DataFrame version of the catalog.
     """
-    if cat not in ["source", "mstars", "wd"]:
-        raise ValueError("Argument `cat` must be one of 'source', 'mstars', or 'wd'.")
+    if "koi" in cat:
+        # I don't want to type "kois-nns" every time I want the kois.
+        cat = "kois-nns"
+    elif cat == "input":
+        # For the inevitable event that I forget that it's the "source" (not "input") catalog
+        cat = "source"
+    elif cat not in ["source", "mstars", "wd"]:
+        raise ValueError("Argument `cat` must be one of 'source', 'kois-nns', 'mstars', or 'wd'.")
         
     if reader == "fits":
         return Table.read(
@@ -40,7 +46,7 @@ def read_catalog(cat="source", reader="fits", **kw):
             **kw)
     elif reader == "pandas":
         return pd.read_csv(
-            os.path.join(cat_dir, f"kbonus-bkg_{cat}_catalog_v1.0.csv"),
+            os.path.join(cat_dir, f"kbonus-bkg_{cat}-catalog_v1.0.csv"),
             **kw
         )
     else:
@@ -60,6 +66,21 @@ def read_source_catalog(reader="fits", **kw):
         catalog: astropy Table or pandas DataFrame version of the catalog.
     """
     return read_catalog(cat="source", reader=reader, **kw)
+
+def read_koi_catalog(reader="fits", **kw):
+    """Reads the KBONUS KOI catalog from file.
+
+    Args:
+        reader (str): Which reader to use. 
+            Options are 'fits' for `astropy.table.Table.read` 
+            and 'pandas' for `pandas.DataFrame.read_csv`.
+            Defaults to 'fits'.
+        **kw: keyword arguments to be passed to the file reader.
+
+    Returns:
+        catalog: astropy Table or pandas DataFrame version of the catalog.
+    """
+    return read_catalog(cat="koi-nns", reader=reader, **kw)
 
 def read_mstars_catalog(reader="fits", **kw):
     """Reads the KBONUS Mstars Catalog from file.

@@ -17,13 +17,24 @@ def test_reader():
     except ValueError:
         pass
 
-def test_catalogs():
-    assert len(kb.read_source_catalog()) == 606900, \
+def test_catalogs_fits(reader="fits"):
+    assert len(kb.read_source_catalog(reader)) == 606900, \
         "Length of source catalog does not match expectation (606900)."
-    assert len(kb.read_mstars_catalog()) == 29800, \
+    assert len(kb.read_koi_catalog(reader)) == 35639, \
+        "Length of koi catalog does not match expectation (35639)."
+    assert len(kb.read_mstars_catalog(reader)) == 29800, \
         "Length of mstars catalog does not match expectation (29800)."
-    assert len(kb.read_wd_catalog()) == 91, \
+    assert len(kb.read_wd_catalog(reader)) == 91, \
         "Length of wd catalog does not match expectation (91)."
+    
+def test_catalogs_pandas():
+    test_catalogs_fits(reader="pandas")
+
+def test_lazy_catalog_reader():
+    assert len(kb.read_catalog("koi")) == 35639, \
+        "Lazy KOI reader does not return the KOI catalog."
+    assert len(kb.read_catalog("input")) == 606900, \
+        "Reading for 'input' does not return the Source catalog."
 
 def test_resolve_filename():
     gaia = 2143858906058582784
