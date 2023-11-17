@@ -137,7 +137,12 @@ def get_lightcurve(target, **kw):
             The Kepler light curve of the desired target.
     """
     filepath = get_target_path(target)
-    return lk.read(filepath, **kw)
+    if "flux_column" in kw:
+        flux_column = kw.pop("flux_column")
+        return lk.read(filepath, **kw).select_flux(flux_column)
+    else:
+        return lk.read(filepath, **kw)
+    
 
 def get_quarter_lightcurves(target, **kw):
     """Retrieve and read quarter light curves of specified target.
