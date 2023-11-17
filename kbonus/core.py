@@ -170,6 +170,16 @@ def get_quarter_lightcurves(target, **kw):
     """    
     filepath = get_target_path(target)
 
+    if "flux_column" in kw:
+        flux_column = kw.pop("flux_column")
+        if flux_column == "PSF_FLUX_NOVA":
+            flux_err = "PSF_FLUX_ERR_NOVA"
+        else:
+            flux_err = flux_column + "_ERR"
+    else:
+        flux_column = "FLUX"
+        flux_err = "FLUX_ERR"
+
     with fits.open(filepath) as f:
         lcs = []
         objname = f[0].header["OBJECT"]
@@ -179,8 +189,8 @@ def get_quarter_lightcurves(target, **kw):
                 q = extname[extname.find("Q")+1:]
                 lc = lk.KeplerLightCurve(hdu.data, 
                     time=hdu.data["TIME"].astype(float),
-                    flux=hdu.data["FLUX"].astype(float),
-                    flux_err=hdu.data["FLUX_ERR"].astype(float),
+                    flux=hdu.data[flux_column].astype(float),
+                    flux_err=hdu.data[flux_err].astype(float),
                     label=f"{objname} Quarter {q}",
                     **kw)
                 lcs.append(lc)
