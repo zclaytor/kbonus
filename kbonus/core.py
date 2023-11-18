@@ -6,7 +6,7 @@ from astropy.table import Table, Row
 from astropy.io import fits
 from astropy.units import UnitsWarning
 import lightkurve as lk
-
+from lightkurve.utils import KeplerQualityFlags
 
 if gethostname() == "Ultron":
     root_dir = "/home/zach/Projects/kbonus-bkg/"
@@ -48,7 +48,7 @@ def read_catalog(cat="source", reader="fits", **kw):
             warnings.simplefilter("ignore", category=UnitsWarning)
             tab = Table.read(
                 os.path.join(cat_dir, 
-                f"hlsp_kbonus-bkg_kepler_kepler_{cat}-catalog_kepler_v1.0_cat.fits"),
+                    f"hlsp_kbonus-bkg_kepler_kepler_{cat}-catalog_kepler_v1.0_cat.fits"),
                 format="fits",
                 **kw)
             return tab
@@ -151,6 +151,38 @@ def get_lightcurve(target, **kw):
     else:
         return lk.read(filepath, **kw)
     
+def get_lightcurve_fits(target, **kw):
+    filepath = get_target_path(target)
+    if "flux_column" in kw:
+        flux_column = kw.pop("flux_column")
+    else:
+        flux_column = "FLUX"
+
+    if "quality_bitmask" in kw:
+        quality_bitmask = kw.pop("quality_bitmask")
+    else:
+        quality_bitmask = "default"
+
+    with fits.open(filepath) as f:
+        data = f[1].data
+
+        lc = lk.KeplerLightCurve(data=data,
+            time=data["TIME"],
+            flux=data[flux_column],
+            flux_err=data[flux_column + "_ERR"])
+        
+        # Filter out poor-quality data
+        quality_mask = KeplerQualityFlags.create_quality_mask(
+            quality_array=lc["SAP_QUALITY"], bitmask=quality_bitmask
+        )
+        lc = lc[quality_mask]
+
+        lc.meta["AUTHOR"] = "Kepler"
+        lc.meta["TARGETID"] = lc.meta.get("KEPLERID")
+        lc.meta["QUALITY_BITMASK"] = quality_bitmask
+        lc.meta["QUALITY_MASK"] = quality_mask
+
+    return lc
 
 def get_quarter_lightcurves(target, **kw):
     """Retrieve and read quarter light curves of specified target.
