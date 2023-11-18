@@ -1,8 +1,10 @@
 import os
+import warnings
 from socket import gethostname
 import pandas as pd
 from astropy.table import Table, Row
 from astropy.io import fits
+from astropy.units import UnitsWarning
 import lightkurve as lk
 
 
@@ -39,11 +41,17 @@ def read_catalog(cat="source", reader="fits", **kw):
         raise ValueError("Argument `cat` must be one of 'source', 'kois-nns', 'mstars', or 'wd'.")
         
     if reader == "fits":
-        return Table.read(
-            os.path.join(cat_dir, 
+        with warnings.catch_warnings():
+            # By default, AstroPy emits noisy warnings about units commonly used
+            # in archived TESS data products (e.g., "e-/s" and "pixels").
+            # We ignore them here because they don't affect Lightkurve's features.
+            warnings.simplefilter("ignore", category=UnitsWarning)
+            tab = Table.read(
+                os.path.join(cat_dir, 
                 f"hlsp_kbonus-bkg_kepler_kepler_{cat}-catalog_kepler_v1.0_cat.fits"),
-            format="fits",
-            **kw)
+                format="fits",
+                **kw)
+            return tab
     elif reader == "pandas":
         return pd.read_csv(
             os.path.join(cat_dir, f"kbonus-bkg_{cat}-catalog_v1.0.csv"),
