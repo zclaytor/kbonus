@@ -30,7 +30,7 @@ setuptools.setup(
     license="MIT",
     python_requires='>=3',
     install_requires=[
-        'numpy', 'matplotlib', 'pandas', 'astropy', 'lightkurve'
+        'numpy', 'matplotlib', 'pandas', 'astropy', 'lightkurve==2.4.0'
     ],
     packages=setuptools.find_packages(),
     classifiers=[
